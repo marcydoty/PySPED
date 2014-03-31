@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from pysped.xml_sped import *
-from pysped.nfe.manual_401 import ESQUEMA_ATUAL
-from pysped.nfe.manual_300 import consrecinfe_110
+from nfe.pysped.xml_sped import *
+from nfe.pysped.nfe.manual_401 import ESQUEMA_ATUAL
+from nfe.pysped.nfe.manual_300 import consrecinfe_110
 import os
 from nfe_200 import NFe
 

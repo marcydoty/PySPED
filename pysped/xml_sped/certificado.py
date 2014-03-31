@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from pysped.xml_sped import XMLNFe, NAMESPACE_SIG, ABERTURA, tira_abertura
+from nfe.pysped.xml_sped import XMLNFe, NAMESPACE_SIG, ABERTURA, tira_abertura
+import tempfile
 import libxml2
 import xmlsec
 import os
@@ -10,6 +11,9 @@ from OpenSSL import crypto
 
 
 DIRNAME = os.path.dirname(__file__)
+
+
+
 
 
 class Certificado(object):
@@ -23,19 +27,91 @@ class Certificado(object):
         self.data_inicio_validade = None
         self.data_fim_validade    = None
         self._doc_xml    = None
+        self.cert_str=''
+        self.key_str=''
 
+
+    def _set_chave(self, chave):
+        self._chave = chave
+
+    def _get_chave(self):
+        try:
+            if self._chave: # != ''
+                return self._chave
+            else:
+                raise AttributeError("'chave' precisa ser regenerada")
+        except AttributeError, e:
+            if self.arquivo:    # arquivo disponível
+                self.prepara_certificado_arquivo_pfx()
+                return self._chave  # agora já disponível
+            else:
+                return ''
+    
+    chave = property(_get_chave, _set_chave)
+
+    def _set_certificado(self, certificado):
+        self._certificado = certificado
+
+    def _get_certificado(self):
+        try:
+            if self._certificado:   # != ''
+                return self._certificado
+            else:
+                raise AttributeError("'certificado' precisa ser regenerado")
+        except AttributeError, e:
+            if self.arquivo:    # arquivo disponível
+                self.prepara_certificado_arquivo_pfx()
+                return self._certificado  # agora já disponível
+            else:
+                return ''
+    
+    certificado = property(_get_certificado, _set_certificado)
+
+    @property
+    def proprietario_nome(self):
+        if 'CN' in self.proprietario:
+            #
+            # Alguns certrificados não têm o CNPJ na propriedade CN, somente o
+            # nome do proprietário
+            #
+            if ':' in self.proprietario['CN']:
+                return self.proprietario['CN'].rsplit(':',1)[0]
+            else:
+                return self.proprietario['CN']
+        else: # chave CN ainda não disponível
+            try:
+                self.prepara_certificado_arquivo_pfx()
+                return self.proprietario['CN'].rsplit(':',1)[0]
+            except IOError, e:  # arquivo do certificado não disponível
+                return ''
+
+    @property
+    def proprietario_cnpj(self):
+        if 'CN' in self.proprietario:
+            #
+            # Alguns certrificados não têm o CNPJ na propriedade CN, somente o
+            # nome do proprietário
+            #
+            if ':' in self.proprietario['CN']:
+                return self.proprietario['CN'].rsplit(':',1)[1]
+            else:
+                return ''
+        else: #chave CN ainda não disponível
+            try:
+                self.prepara_certificado_arquivo_pfx()
+                return self.proprietario['CN'].rsplit(':',1)[1]
+            except IOError, e:  # arquivo do certificado não disponível
+                return ''
+
+    
     def prepara_certificado_arquivo_pfx(self):
-        # Lendo o arquivo pfx no formato pkcs12 como binário
-        pkcs12 = crypto.load_pkcs12(open(self.arquivo, 'rb').read(), self.senha)
-
-        # Retorna a string decodificada da chave privada
-        self.chave = crypto.dump_privatekey(crypto.FILETYPE_PEM, pkcs12.get_privatekey())
-
-        # Retorna a string decodificada do certificado
-        self.prepara_certificado_txt(crypto.dump_certificate(crypto.FILETYPE_PEM, pkcs12.get_certificate()))
+        
+        self.chave=self.key_str
+        self.prepara_certificado_txt(self.cert_str)
+    
 
     def prepara_certificado_arquivo_pem(self):
-        self.prepara_certificado_txt(open(self.arquivo, 'rb').read())
+        self.prepara_certificado_txt(self.cert_str)
 
     def prepara_certificado_txt(self, cert_txt):
         #
@@ -57,7 +133,7 @@ class Certificado(object):
 
         self.emissor = dict(cert_openssl.get_issuer().get_components())
         self.proprietario = dict(cert_openssl.get_subject().get_components())
-
+        
         self.data_inicio_validade = datetime.strptime(cert_openssl.get_notBefore(), '%Y%m%d%H%M%SZ')
         self.data_fim_validade    = datetime.strptime(cert_openssl.get_notAfter(), '%Y%m%d%H%M%SZ')
 
@@ -104,23 +180,14 @@ class Certificado(object):
         # Determina o tipo de arquivo que vai ser assinado, procurando
         # pela tag correspondente
         #
-        
-        #
-        # XML da NF-e nacional
-        #
         if u'infNFe' in xml:
             doctype = u'<!DOCTYPE NFe [<!ATTLIST infNFe Id ID #IMPLIED>]>'
         elif u'infCanc' in xml:
             doctype = u'<!DOCTYPE cancNFe [<!ATTLIST infCanc Id ID #IMPLIED>]>'
+        elif u'infEvento' in xml:
+            doctype = u'<!DOCTYPE envEvento [<!ATTLIST infEvento Id ID #IMPLIED>]>'
         elif u'infInut' in xml:
             doctype = u'<!DOCTYPE inutNFe [<!ATTLIST infInut Id ID #IMPLIED>]>'
-            
-        #
-        # XML da NFS-e
-        #
-        elif u'ReqEnvioLoteRPS' in xml:
-            doctype = u'<!DOCTYPE Lote [<!ATTLIST Lote Id ID #IMPLIED>]>'
-            
         else:
             raise ValueError('Tipo de arquivo desconhecido para assinatura/validacao')
 
@@ -147,23 +214,14 @@ class Certificado(object):
         # Determina o tipo de arquivo que vai ser assinado, procurando
         # pela tag correspondente
         #
-
-        #
-        # XML da NF-e nacional
-        #
         if u'infNFe' in xml:
             doctype = u'<!DOCTYPE NFe [<!ATTLIST infNFe Id ID #IMPLIED>]>'
         elif u'infCanc' in xml:
             doctype = u'<!DOCTYPE cancNFe [<!ATTLIST infCanc Id ID #IMPLIED>]>'
+        elif u'infEvento' in xml:
+            doctype = u'<!DOCTYPE envEvento [<!ATTLIST infEvento Id ID #IMPLIED>]>'
         elif u'infInut' in xml:
             doctype = u'<!DOCTYPE inutNFe [<!ATTLIST infInut Id ID #IMPLIED>]>'
-
-        #
-        # XML da NFS-e
-        #
-        elif u'ReqEnvioLoteRPS' in xml:
-            doctype = u'<!DOCTYPE Lote [<!ATTLIST Lote Id ID #IMPLIED>]>'
-
         else:
             raise ValueError('Tipo de arquivo desconhecido para assinatura/validacao')
 
@@ -188,17 +246,33 @@ class Certificado(object):
         # Separa o nó da assinatura
         #
         noh_assinatura = xmlsec.findNode(doc_xml.getRootElement(), xmlsec.NodeSignature, xmlsec.DSigNs)
+        
+        #
+        # Arquivos temporários são criados com o certificado no formato PEM
+        #
+        temp_chave = tempfile.NamedTemporaryFile('w')
+        temp_chave.write(self.chave)
+        temp_chave.flush()
+        
+        temp_certificado = tempfile.NamedTemporaryFile('w')
+        temp_certificado.write(self.certificado)
+        temp_certificado.flush()
+        
+        #
+        # Buscamos chave e certificado no arquivo temporário e inserimos no "chaveiro"
+        #
+        chaveiro = xmlsec.KeysMngr()
+        xmlsec.cryptoAppDefaultKeysMngrInit(chaveiro)
 
+        chave = xmlsec.cryptoAppKeyLoad(filename=temp_chave.name, format=xmlsec.KeyDataFormatPem, pwd=None, pwdCallback=None, pwdCallbackCtx=None)
+        certificado = xmlsec.cryptoAppKeyCertLoad(chave, filename=temp_certificado.name, format=xmlsec.KeyDataFormatPem)
+        xmlsec.cryptoAppDefaultKeysMngrAdoptKey(chaveiro, chave)
+        
         #
-        # Cria a variável de chamada (callable) da função de assinatura
+        # Cria a variável de chamada (callable) da função de assinatura, usando o "chaveiro"
         #
-        assinador = xmlsec.DSigCtx()
-
-        #
-        # Buscamos a chave no arquivo do certificado
-        #
-        chave = xmlsec.cryptoAppKeyLoad(filename=str(self.arquivo), format=xmlsec.KeyDataFormatPkcs12, pwd=str(self.senha), pwdCallback=None, pwdCallbackCtx=None)
-
+        assinador = xmlsec.DSigCtx(chaveiro)
+        
         #
         # Atribui a chave ao assinador
         #
@@ -218,6 +292,13 @@ class Certificado(object):
         # Libera a memória ocupada pelo assinador manualmente
         #
         assinador.destroy()
+        
+        #
+        # Arquivos temporários são deletados do disco
+        #
+        temp_chave.close()
+        temp_certificado.close()
+
 
         if status != xmlsec.DSigStatusSucceeded:
             #

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from pysped.xml_sped import *
-from pysped.nfe.manual_401 import ESQUEMA_ATUAL
-from pysped.nfe.manual_300 import envinfe_110
+from nfe.pysped.xml_sped import *
+from nfe.pysped.nfe.manual_401 import ESQUEMA_ATUAL
+from nfe.pysped.nfe.manual_300 import envinfe_110
 import os
 from nfe_200 import NFe
 
@@ -75,4 +75,4 @@ class RetEnviNFe(envinfe_110.RetEnviNFe):
             self.infRec.xml   = arquivo
        
     xml = property(get_xml, set_xml)
-             
+

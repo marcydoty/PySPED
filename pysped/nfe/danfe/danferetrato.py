@@ -7,11 +7,12 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
 from reportlab.lib.colors import HexColor
 
 from geraldo import Report, ReportBand, SubReport
-from geraldo import ObjectValue, SystemField, Label, Line, BarCode, Rect, Image
+from geraldo import ObjectValue, SystemField, Label, Line, Rect, Image
+from geraldo.barcodes import BarCode
 from geraldo.generators import PDFGenerator
 
-from pysped.relato_sped import *
-from pysped.nfe.manual_401 import Vol_200
+from nfe.pysped.relato_sped import *
+from nfe.pysped.nfe.manual_401 import Vol_200
 
 
 class DANFERetrato(Report):
@@ -44,7 +45,7 @@ class DANFERetrato(Report):
         self.dados_adicionais = DadosAdicionaisRetrato()
         self.rodape_final     = RodapeFinalRetrato()
 
-    def on_new_page(self, page, page_number, generator):
+    def do_on_new_page(self, page, page_number, generator):
         if generator._current_page_number <> 1:
             self.band_page_footer = self.rodape_final
 
@@ -66,7 +67,7 @@ class DANFERetrato(Report):
             self.width = 19.4*cm
             self.height = 0.2*cm
             self.style = DADO_PRODUTO
-            self.borders = {'bottom': 0.1}
+            self.borders = {'bottom': 1.0}
 
 
 class CanhotoRetrato(BandaDANFE):
@@ -75,7 +76,7 @@ class CanhotoRetrato(BandaDANFE):
         self.elements = []
         lbl, txt = self.inclui_texto(nome='', titulo='', texto=u'', top=0*cm, left=0*cm, width=16*cm)
         fld = self.inclui_campo_sem_borda(nome='canhoto_recebemos', conteudo=u'NFe.canhoto_formatado', top=0*cm, left=0*cm, width=16*cm)
-        fld.borders = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': False}
+        fld.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left':1.0 }#mudança de borda
         fld.padding_top = 0.08*cm
         fld.padding_left = 0.08*cm
         fld.padding_bottom = 0.08*cm
@@ -122,8 +123,8 @@ class RemetenteRetrato(BandaDANFE):
 
         fld = self.inclui_campo_sem_borda(nome='danfe_entrada_saida', conteudo=u'NFe.infNFe.ide.tpNF.valor', top=1.6*cm, left=10.4*cm, width=0.6*cm, height=0.6*cm)
         fld.style = DESCRITIVO_NUMERO
-        fld.borders = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': 0.1}
-        fld.padding_bottom = 0.2*cm
+        fld.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
+        fld.padding_bottom = 1.0*cm
 
         fld = self.inclui_campo_sem_borda(nome='danfe_numero', conteudo=u'NFe.numero_formatado', top=2.4*cm, left=8*cm, width=3.4*cm, height=0.5*cm)
         fld.style = DESCRITIVO_NUMERO
@@ -131,8 +132,8 @@ class RemetenteRetrato(BandaDANFE):
         fld = self.inclui_campo_sem_borda(nome='danfe_serie', conteudo=u'NFe.serie_formatada', top=2.85*cm, left=8*cm, width=3.4*cm, height=0.5*cm)
         fld.style = DESCRITIVO_NUMERO
 
-        fld = SystemField(name='fld_danfe_folha', expression=u'FOLHA %(page_number)02d/%(page_count)02d', top=3.3*cm, left=8*cm, width=3.4*cm, height=0.5*cm)
-        fld.padding_top = 0.1*cm
+        fld = SystemField(name='fld_danfe_folha', expression=u'FOLHA %(page_number)02d/%(page_count)02d', top=2.4*cm, left=8*cm, width=3.4*cm, height=0.5*cm)
+        fld.padding_top = 1.0*cm
         fld.style = DESCRITIVO_NUMERO
         self.elements.append(fld)
 
@@ -141,6 +142,7 @@ class RemetenteRetrato(BandaDANFE):
         #
         self.elements.append(Line(top=0*cm, bottom=0*cm, left=11.4*cm, right=19.4*cm, stroke_width=0.1))
         self.elements.append(BarCode(type=u'Code128', attribute_name=u'NFe.chave_para_codigo_barras', top=((1.625-0.8)/2.0)*cm, left=11.3*cm, width=0.025*cm, height=0.8*cm))
+        self.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
 
         lbl, fld = self.inclui_campo(nome='remetente_chave', titulo=u'CHAVE DE ACESSO', conteudo=u'NFe.chave_formatada', top=1.625*cm, left=11.4*cm, width=8*cm, margem_direita=True)
         fld.style = DADO_CHAVE
@@ -209,7 +211,7 @@ class RemetenteRetrato(BandaDANFE):
         self.elements.insert(0, txt)
 
         lbl = LabelMargemEsquerda()
-        lbl.borders = None
+        lbl.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
         lbl.name = 'lbl_prot_cancelamento'
         lbl.text = u'PROTOCOLO<br />DE CANCELAMENTO'
         #lbl.top = 1.75*cm
@@ -245,7 +247,7 @@ class RemetenteRetrato(BandaDANFE):
         self.elements.insert(0, txt)
 
         lbl = LabelMargemEsquerda()
-        lbl.borders = None
+        lbl.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
         lbl.name = 'lbl_prot_denegacao'
         lbl.text = u'PROTOCOLO<br />DE DENEGAÇÃO'
         #lbl.top = 1.75*cm
@@ -292,7 +294,7 @@ class RemetenteRetrato(BandaDANFE):
     def obs_sem_valor_fiscal(self):
         lbl = Texto()
         lbl.name  = 'txt_obs_homologacao'
-        lbl.text  = u'sem valor fiscal'
+        lbl.text  = u'Sem valor fiscal'
         lbl.top   = 9*cm
         lbl.left  = 0*cm
         lbl.width = 19.4*cm
@@ -364,6 +366,8 @@ class RemetenteRetrato(BandaDANFE):
         # Dados do remetente
         #
         img = Image()
+
+
         img.top = 0.1*cm
         img.left = 0.1*cm
         #
@@ -434,6 +438,7 @@ class RemetenteRetrato(BandaDANFE):
         # Dados do remetente
         #
         img = Image()
+
         img.top = 0.1*cm
         img.left = 0.1*cm
         #
@@ -443,6 +448,7 @@ class RemetenteRetrato(BandaDANFE):
         img.width = 191
         img.height = 116
         img.filename = arquivo_imagem
+
         elements.append(img)
 
         fld = Campo()
@@ -503,7 +509,9 @@ class DestinatarioRetrato(BandaDANFE):
     def __init__(self):
         super(DestinatarioRetrato, self).__init__()
         self.elements = []
-        self.inclui_descritivo(nome='remetente', titulo=u'DESTINATÁRIO/REMETENTE', top=0*cm, left=0*cm, width=19.4*cm)
+        lbl = self.inclui_descritivo(nome='remetente', titulo=u'DESTINATÁRIO/REMETENTE', top=0*cm, left=0*cm, width=19.4*cm)
+#        lbl.borders['right'] = {'top': 1.0, 'right': False, 'bottom': 1.0, 'left': False}
+
 
         # 1ª linha
         lbl, fld = self.inclui_campo(nome='remetente_nome', titulo=u'NOME/RAZÃO SOCIAL', conteudo=u'NFe.infNFe.dest.xNome.valor', top=0.42*cm, left=0*cm, width=13.95*cm)
@@ -512,12 +520,16 @@ class DestinatarioRetrato(BandaDANFE):
         lbl, fld = self.inclui_campo(nome='remetente_data_emissao', titulo=u'DATA DA EMISSÃO', conteudo=u'NFe.infNFe.ide.dEmi.formato_danfe', top=0.42*cm, left=17.2*cm, width=2.2*cm, margem_direita=True)
         fld.style = DADO_CAMPO_NEGRITO
 
+
+
+
         # 2ª linha
         lbl, fld = self.inclui_campo(nome='remetente_nome', titulo=u'ENDEREÇO', conteudo=u'NFe.endereco_destinatario_formatado', top=1.12*cm, left=0*cm, width=10.9*cm)
         lbl, fld = self.inclui_campo(nome='remetente_bairro', titulo=u'BAIRRO/DISTRITO', conteudo=u'NFe.infNFe.dest.enderDest.xBairro.valor', top=1.12*cm, left=10.9*cm, width=4.5*cm)
         lbl, fld = self.inclui_campo(nome='remetente_cep', titulo=u'CEP', conteudo=u'NFe.cep_destinatario_formatado', top=1.12*cm, left=15.4*cm, width=1.8*cm)
         lbl, fld = self.inclui_campo(nome='remetente_data_entradasaida', titulo=u'DATA DA ENTRADA/SAÍDA', conteudo=u'NFe.infNFe.ide.dSaiEnt.formato_danfe', top=1.12*cm, left=17.2*cm, width=2.2*cm, margem_direita=True)
         fld.style = DADO_CAMPO_NEGRITO
+
 
         ## 3ª linha
         lbl, fld = self.inclui_campo(nome='remetente_municipio', titulo=u'MUNICÍPIO', conteudo=u'NFe.infNFe.dest.enderDest.xMun.valor', top=1.82*cm, left=0*cm, width=10.4*cm)
@@ -526,6 +538,9 @@ class DestinatarioRetrato(BandaDANFE):
         lbl, fld = self.inclui_campo(nome='remetente_ie', titulo=u'INSCRIÇÃO ESTADUAL', conteudo=u'NFe.infNFe.dest.IE.valor', top=1.82*cm, left=13.95*cm, width=3.25*cm)
         lbl, fld = self.inclui_campo(nome='remetente_hora_entradasaida', titulo=u'HORA DA ENTRADA/SAÍDA', conteudo=u'NFe.infNFe.ide.hSaiEnt.formato_danfe', top=1.82*cm, left=17.2*cm, width=2.2*cm, margem_direita=True)
         fld.style = DADO_CAMPO_NEGRITO
+#        lbl.borders['right'] = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
+#        lbl.borders['right'] = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
+
 
         self.height = 2.52*cm
 
@@ -564,12 +579,12 @@ class FaturaAVistaRetrato(BandaDANFE):
 
         # 1ª linha
         lbl, txt = self.inclui_texto(nome='fat_texto', titulo='', texto=u'PAGAMENTO À VISTA', top=0.42*cm, left=0*cm, width=19.4*cm)
-        lbl.borders['right'] = False
+#        lbl.borders['right'] = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
 
-        lbl, fld = self.inclui_campo(nome='fat_numero', titulo=u'NÚMERO DA FATURA', conteudo=u'NFe.infNFe.cobr.fat.nFat.valor', top=0.42*cm, left=3.7*cm, width=9.7*cm)
-        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR ORIGINAL', conteudo=u'NFe.infNFe.cobr.fat.vOrig.formato_danfe', top=0.42*cm, left=13.4*cm, width=2*cm)
-        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'DESCONTO', conteudo=u'NFe.infNFe.cobr.fat.vDesc.formato_danfe', top=0.42*cm, left=15.4*cm, width=2*cm)
-        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR LÍQUIDO', conteudo=u'NFe.infNFe.cobr.fat.vLiq.formato_danfe', top=0.42*cm, left=17.4*cm, width=2*cm, margem_direita=True)
+        lbl, fld = self.inclui_campo(nome='fat_numero', titulo=u'NÚMERO DA FATURA', conteudo=u'NFe.infNFe.cobr.fat.nFat.valor', top=0.42*cm, left=7.7*cm, width=7.7*cm)
+#        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR ORIGINAL', conteudo=u'NFe.infNFe.cobr.fat.vOrig.formato_danfe', top=0.42*cm, left=13.4*cm, width=2*cm)
+#        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'DESCONTO', conteudo=u'NFe.infNFe.cobr.fat.vDesc.formato_danfe', top=0.42*cm, left=15.4*cm, width=2*cm)
+        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR LÍQUIDO', conteudo=u'NFe.infNFe.cobr.fat.vLiq.formato_danfe', top=0.42*cm, left=15.4*cm, width=4*cm, margem_direita=True)
 
         self.height = 1.12*cm
 
@@ -581,12 +596,12 @@ class FaturaAPrazoRetrato(BandaDANFE):
 
         # 1ª linha
         lbl, txt = self.inclui_texto(nome='fat_texto', titulo='', texto=u'PAGAMENTO A PRAZO', top=0.42*cm, left=0*cm, width=19.4*cm)
-        lbl.borders['right'] = False
+        lbl.borders['right'] = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
 
-        lbl, fld = self.inclui_campo(nome='fat_numero', titulo=u'NÚMERO DA FATURA', conteudo=u'NFe.infNFe.cobr.fat.nFat.valor', top=0.42*cm, left=3.7*cm, width=9.7*cm)
-        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR ORIGINAL', conteudo=u'NFe.infNFe.cobr.fat.vOrig.formato_danfe', top=0.42*cm, left=13.4*cm, width=2*cm)
-        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'DESCONTO', conteudo=u'NFe.infNFe.cobr.fat.vDesc.formato_danfe', top=0.42*cm, left=15.4*cm, width=2*cm)
-        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR LÍQUIDO', conteudo=u'NFe.infNFe.cobr.fat.vLiq.formato_danfe', top=0.42*cm, left=17.4*cm, width=2*cm, margem_direita=True)
+        lbl, fld = self.inclui_campo(nome='fat_numero', titulo=u'NÚMERO DA FATURA', conteudo=u'NFe.infNFe.cobr.fat.nFat.valor', top=0.42*cm, left=7.7*cm, width=7.7*cm)
+#        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR ORIGINAL', conteudo=u'NFe.infNFe.cobr.fat.vOrig.formato_danfe', top=0.42*cm, left=13.4*cm, width=2*cm)
+#        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'DESCONTO', conteudo=u'NFe.infNFe.cobr.fat.vDesc.formato_danfe', top=0.42*cm, left=15.4*cm, width=2*cm)
+        lbl, fld = self.inclui_campo_numerico(nome='fat_vorig', titulo=u'VALOR LÍQUIDO', conteudo=u'NFe.infNFe.cobr.fat.vLiq.formato_danfe', top=0.42*cm, left=15.4*cm, width=4*cm, margem_direita=True)
 
         self.height = 1.12*cm
 
@@ -600,15 +615,15 @@ class DuplicatasRetrato(SubReport):
         def __init__(self):
             super(DuplicatasRetrato.band_header, self).__init__()
             self.elements = []
-            self.inclui_descritivo(nome='dup', titulo=u'DUPLICATAS', top=1.12*cm, left=0*cm, width=19.4*cm)
+            self.inclui_descritivo(nome='dup', titulo=u'DUPLICATAS', top=1.12*cm, left=0*cm, width=1.12*cm)
             self.height = 0.42*cm
-
     class band_detail(BandaDANFE):
         def __init__(self):
             super(DuplicatasRetrato.band_detail, self).__init__()
             self.width = 6.4*cm
             self.display_inline = True
             self.margin_right = 0.08*cm
+            self.margin_top = 0.08*cm
 
             self.elements = []
             lbl, fld = self.inclui_campo(nome='dup_numero', titulo=u'NÚMERO', conteudo=u'nDup.valor', top=1.12*cm, left=0*cm, width=2.8*cm)
@@ -700,9 +715,11 @@ class CabProdutoRetrato(BandaDANFE):
         self.elements = []
         self.inclui_descritivo(nome='cabprod', titulo=u'DADOS DOS PRODUTOS/SERVIÇOS', top=0*cm, left=0*cm, width=19.4*cm)
 
-        lbl = self.inclui_descritivo_produto(nome='', titulo='CÓDIGO DO PRODUTO', top=0.42*cm, left=0*cm, width=2.6*cm)
+        lbl = self.inclui_descritivo_produto(nome='', titulo='CÓDIGO DO PRODUTO', top=0.42*cm, left=0*cm, width=2*cm)
         lbl.padding_top = 0.15*cm
-        lbl = self.inclui_descritivo_produto(nome='', titulo='DESCRIÇÃO DO PRODUTO/SERVIÇO', top=0.42*cm, left=2.6*cm, width=5.26*cm)
+        lbl = self.inclui_descritivo_produto(nome='', titulo='DESCRIÇÃO DO PRODUTO/SERVIÇO', top=0.42*cm, left=2*cm, width=4.31*cm)
+        lbl.padding_top = 0.15*cm
+        lbl = self.inclui_descritivo_produto(nome='', titulo='CÓDIGO DE BARRAS', top=0.42*cm, left=6.3*cm, width=1.57*cm)
         lbl.padding_top = 0.15*cm
         lbl = self.inclui_descritivo_produto(nome='', titulo='NCM/SH', top=0.42*cm, left=7.86*cm, width=1*cm)
         lbl.padding_top = 0.15*cm
@@ -751,8 +768,9 @@ class DetProdutoRetrato(BandaDANFE):
         #txt = self.inclui_texto_numerico_produto(nome='', texto='99,99', top=0*cm, left=18.24*cm, width=0.58*cm)
         #txt = self.inclui_texto_numerico_produto(nome='', texto='99,99', top=0*cm, left=18.82*cm, width=0.58*cm, margem_direita=True)
 
-        txt = self.inclui_campo_produto(nome=u'prod_codigo', conteudo=u'prod.cProd.valor', top=0*cm, left=0*cm, width=2.6*cm)
-        txt = self.inclui_campo_produto(nome=u'prod_descricaco', conteudo=u'descricao_produto_formatada', top=0*cm, left=2.6*cm, width=5.26*cm)
+        txt = self.inclui_campo_produto(nome=u'prod_codigo', conteudo=u'prod.cProd.valor', top=0*cm, left=0*cm, width=2*cm)
+        txt = self.inclui_campo_produto(nome=u'prod_descricaco', conteudo=u'descricao_produto_formatada', top=0*cm, left=2*cm, width=4.31*cm)
+        txt = self.inclui_campo_centralizado_produto(nome=u'prod_cean', conteudo=u'prod.cEAN.valor', top=0*cm, left=6.3*cm, width=1.57*cm)
         txt = self.inclui_campo_centralizado_produto(nome=u'prod_ncm', conteudo=u'prod.NCM.valor', top=0*cm, left=7.86*cm, width=1*cm)
         txt = self.inclui_campo_centralizado_produto(nome='prod_cst', conteudo='cst_formatado', top=0*cm, left=8.86*cm, width=0.44*cm)
         txt = self.inclui_campo_centralizado_produto(nome=u'prod_cfop', conteudo=u'prod.CFOP.valor', top=0*cm, left=9.3*cm, width=0.54*cm)
@@ -777,7 +795,7 @@ class ISSRetrato(BandaDANFE):
 
         # Cálculo do ISS
         self.inclui_descritivo(nome='iss', titulo=u'CÁLCULO DO ISSQN', top=0*cm, left=0*cm, width=19.4*cm)
-        lbl, fld = self.inclui_campo(nome='iss_im', titulo=u'INSCRIÇÃO MUNICIPAL', conteudo=u'NFe.infNFe.emit.IM.valor', top=0.42*cm, left=0*cm, width=4.85*cm)
+        lbl, fld = self.inclui_campo(nome='iss_im', titulo=u'INSCRIÇÃO MUNICIPAL', conteudo=u'NFe.infNFe.ide.cMunFG.valor', top=0.42*cm, left=0*cm, width=4.85*cm)
         lbl, fld = self.inclui_campo_numerico(nome='iss_vr_servico', titulo=u'VALOR TOTAL DOS SERVIÇOS', conteudo=u'NFe.infNFe.total.ISSQNTot.vServ.formato_danfe', top=0.42*cm, left=4.85*cm, width=4.85*cm)
         lbl, fld = self.inclui_campo_numerico(nome='iss_bc', titulo=u'BASE DE CÁLCULO DO ISSQN', conteudo=u'NFe.infNFe.total.ISSQNTot.vBC.formato_danfe', top=0.42*cm, left=9.7*cm, width=4.85*cm)
         lbl, fld = self.inclui_campo_numerico(nome='iss_vr_iss', titulo=u'VALOR DO ISSQN', conteudo=u'NFe.infNFe.total.ISSQNTot.vISS.formato_danfe', top=0.42*cm, left=14.55*cm, width=4.85*cm, margem_direita=True)
@@ -806,20 +824,21 @@ class DadosAdicionaisRetrato(BandaDANFE):
         self.inclui_texto(nome='', titulo='RESERVADO AO FISCO', texto='', top=0.42*cm, left=11.7*cm, width=7.7*cm, height=4*cm, margem_direita=True)
 
         fld = DANFERetrato.ObsImpressao()
-        fld.top = 4.42*cm
+#        fld.top = 4.42*cm
+        fld.top = 4.62*cm
         self.elements.append(fld)
 
-        self.height = 4.42*cm
-        #self.height = 4.62*cm
+#        self.height = 4.42*cm
+        self.height = 4.62*cm
 
 
 class RodapeFinalRetrato(BandaDANFE):
     def __init__(self):
         super(RodapeFinalRetrato, self).__init__()
         self.elements = []
-        self.height = 0.1*cm
+        self.height = 1.0*cm
 
         # Obs de impressão
         fld = DANFERetrato.ObsImpressao()
-        fld.top = 0.1*cm
+        fld.top = 1.0*cm
         self.elements.append(fld)

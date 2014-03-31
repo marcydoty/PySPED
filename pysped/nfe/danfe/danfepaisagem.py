@@ -11,40 +11,55 @@ from geraldo import ObjectValue, SystemField, Label, Line
 from geraldo.generators import PDFGenerator
 
 import os
-#cur_dir = os.path.dirname(os.path.abspath(__file__))
-cur_dir = '/home/ari/django/danfe/'
+cur_dir = os.path.dirname(os.path.abspath(__file__))
 
-from registrafontes import registra_fontes
+
+#from registrafontes import registra_fontes
+from nfe.pysped.relato_sped import *
+from nfe.pysped.nfe.manual_401 import Vol_200
 
 from base import *
 
 
 class DANFEPaisagem(Report):
     title = 'DANFE - Documento Auxiliar da Nota Fiscal Eletrônica'
-    author = 'TaŭgaRS Haveno'
+    author = 'Taŭga Haveno'
     print_if_empty = True
-    
+#
+#    page_size = PAISAGEM
+#    margin_top = MARGEM_SUPERIOR
+#    margin_bottom = MARGEM_INFERIOR
+#    margin_left = MARGEM_ESQUERDA
+#    margin_right = MARGEM_DIREITA
+
     page_size = PAISAGEM
     margin_top = MARGEM_SUPERIOR
     margin_bottom = MARGEM_INFERIOR
     margin_left = MARGEM_ESQUERDA
     margin_right = MARGEM_DIREITA
-    
+
     def __init__(self, *args, **kargs):
         super(DANFEPaisagem, self).__init__(*args, **kargs)
+        self.title = 'DANFE - Documento Auxiliar da Nota Fiscal Eletrônica'
+        self.print_if_empty = True
+        self.additional_fonts = FONTES_ADICIONAIS
 
     def on_new_page(self, generator):
         if generator._current_page_number <> 1:
             self.band_page_footer = None
-            
+
             self.band_page_header = RemetentePaisagem()
             self.band_page_header.campo_variavel_normal()
-            
+
+    def do_on_new_page(self, page, page_number, generator):
+        if generator._current_page_number <> 1:
+            self.band_page_footer = self.rodape_final
+
+            self.band_page_header = self.remetente
             self.band_page_header.child_bands = []
             self.band_page_header.child_bands.append(CabProdutoPaisagem())
-            
-            print 'passou'
-        
+
+
 
 class CanhotoPaisagem(BandaDANFE):
     def __init__(self):

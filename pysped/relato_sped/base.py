@@ -62,7 +62,7 @@ VERMELHO_CARIMBO = HexColor(0xff9393)
 CINZA_MARCADAGUA = HexColor(0x939393)
 
 DESCRITIVO_BLOCO = {'fontName': FONTE_NEGRITO, 'fontSize': FONTE_TAMANHO_8}
-DESCRITIVO_CAMPO = {'fontName': FONTE_NORMAL, 'fontSize': FONTE_TAMANHO_5}
+DESCRITIVO_CAMPO = {'fontName': FONTE_NEGRITO, 'fontSize': FONTE_TAMANHO_5-1}
 DESCRITIVO_CAMPO_NEGRITO = {'fontName': FONTE_NEGRITO, 'fontSize': FONTE_TAMANHO_5}
 DESCRITIVO_PRODUTO = {'fontName': FONTE_NORMAL, 'fontSize': FONTE_TAMANHO_5, 'alignment': TA_CENTER, 'leading': FONTE_TAMANHO_7}
 
@@ -100,8 +100,8 @@ EMIT_DADOS = {'fontName': FONTE_NEGRITO, 'fontSize': FONTE_TAMANHO_8, 'alignment
 class LabelMargemEsquerda(Label):
     def __init__(self):
         super(LabelMargemEsquerda, self).__init__()
-        #self.borders_stroke_width = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': 0.1}
-        self.borders = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': False}
+#        self.borders_stroke_width = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': 0.1}
+        self.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
         self.padding_top = 0.08*cm
         self.padding_left = 0.08*cm
         self.padding_bottom = 0.08*cm
@@ -113,7 +113,7 @@ class LabelMargemEsquerda(Label):
 class LabelMargemDireita(LabelMargemEsquerda):
     def __init__(self):
         super(LabelMargemDireita, self).__init__()
-        self.borders = {'top': 0.1, 'right': False, 'bottom': 0.1, 'left': 0.1}
+        self.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
 
 
 class Campo(ObjectValue):
@@ -142,7 +142,7 @@ class Descritivo(Label):
     def __init__(self):
         super(Descritivo, self).__init__()
         #self.borders_stroke_width = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': 0.1}
-        self.borders = {'top': 0.1, 'right': False, 'bottom': 0.1, 'left': False}
+        self.borders = {'top': 1.0, 'right': False, 'bottom': 1.0, 'left': False}
         self.padding_top = 0.03*cm
         self.padding_left = 0.1*cm
         #self.padding_bottom = 0.05*cm
@@ -286,9 +286,9 @@ class BandaDANFE(ReportBand):
         fld = self._inclui_campo(nome, conteudo, top, left, width, height)
 
         if margem_direita:
-            fld.borders = {'top': 0.1, 'right': False, 'bottom': 0.1, 'left': 0.1}
+            fld.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
         else:
-            fld.borders = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': False}
+            fld.borders = {'top': 1.0, 'right': 1.0, 'bottom': 1.0, 'left': 1.0}
 
         fld.style = DADO_PRODUTO
         fld.padding_top = 0.05*cm
@@ -322,7 +322,7 @@ class BandaDANFE(ReportBand):
 
     def inclui_texto_produto(self, nome, texto, top, left, width, height=None, margem_direita=False):
         txt = self._inclui_texto(nome, texto, top, left, width, height)
-        txt.borders_stroke_width = {'top': 0.1, 'right': 0.1, 'bottom': 0.1, 'left': 0.1}
+        txt.borders_stroke_width = {'top': 0.1, 'right': 0.1, 'bottom':0.1, 'left': 0.1}
 
         if margem_direita:
             txt.borders = {'top': 0.1, 'right': False, 'bottom': 0.1, 'left': 0.1}

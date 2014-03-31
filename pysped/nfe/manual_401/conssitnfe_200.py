@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from pysped.xml_sped import *
-from pysped.nfe.manual_401 import ESQUEMA_ATUAL
-from pysped.nfe.manual_300 import conssitnfe_107
-from pysped.nfe.manual_401 import ProtNFe_200, RetCancNFe_200
+from nfe.pysped.xml_sped import *
+from nfe.pysped.nfe.manual_401 import ESQUEMA_ATUAL
+from nfe.pysped.nfe.manual_300 import conssitnfe_107
+from nfe.pysped.nfe.manual_401 import ProtNFe_200, RetCancNFe_200
 import os
 
 
@@ -13,15 +13,15 @@ DIRNAME = os.path.dirname(__file__)
 class ConsSitNFe(conssitnfe_107.ConsSitNFe):
     def __init__(self):
         super(ConsSitNFe, self).__init__()
-        self.versao = TagDecimal(nome=u'consSitNFe', codigo=u'EP01', propriedade=u'versao', namespace=NAMESPACE_NFE, valor=u'2.00', raiz=u'/')
+        self.versao = TagDecimal(nome=u'consSitNFe', codigo=u'EP01', propriedade=u'versao', namespace=NAMESPACE_NFE, valor=u'2.01', raiz=u'/')
         self.caminho_esquema = os.path.join(DIRNAME, u'schema', ESQUEMA_ATUAL + u'/')
-        self.arquivo_esquema = u'consSitNFe_v2.00.xsd'
+        self.arquivo_esquema = u'consSitNFe_v2.01.xsd'
 
 
 class RetConsSitNFe(conssitnfe_107.RetConsSitNFe):
     def __init__(self):
         super(RetConsSitNFe, self).__init__()
-        self.versao     = TagDecimal(nome=u'retConsSitNFe', codigo=u'ER01', propriedade=u'versao', namespace=NAMESPACE_NFE, valor=u'2.00', raiz=u'/')
+        self.versao     = TagDecimal(nome=u'retConsSitNFe', codigo=u'ER01', propriedade=u'versao', namespace=NAMESPACE_NFE, valor=u'2.01', raiz=u'/')
         self.tpAmb      = TagInteiro(nome=u'tpAmb'        , codigo=u'ER03' , tamanho=[1,   1, 1], raiz=u'//retConsSitNFe')
         self.verAplic   = TagCaracter(nome=u'verAplic'    , codigo=u'ER04' , tamanho=[1,  20]   , raiz=u'//retConsSitNFe')
         self.cStat      = TagCaracter(nome=u'cStat'       , codigo=u'ER05' , tamanho=[1,   3]   , raiz=u'//retConsSitNFe')
@@ -31,7 +31,7 @@ class RetConsSitNFe(conssitnfe_107.RetConsSitNFe):
         self.protNFe    = None
         self.retCancNFe = None
         self.caminho_esquema = os.path.join(DIRNAME, u'schema', ESQUEMA_ATUAL + u'/')
-        self.arquivo_esquema = u'retConsSitNFe_v2.00.xsd'
+        self.arquivo_esquema = u'retConsSitNFe_v2.01.xsd'
 
     def get_xml(self):
         xml = XMLNFe.get_xml(self)

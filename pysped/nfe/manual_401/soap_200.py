@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 
-from pysped.xml_sped import *
-from pysped.nfe.manual_300 import ESQUEMA_ATUAL
+from nfe.pysped.xml_sped import *
+from nfe.pysped.nfe.manual_300 import ESQUEMA_ATUAL
 import os
 
 DIRNAME = os.path.dirname(__file__)
@@ -14,7 +14,7 @@ class NFeCabecMsg(XMLNFe):
         self.webservice = u''
         self.cUF         = TagInteiro(nome=u'cUF'        , codigo=u'', raiz=u'//cabecMsg', tamanho=[2, 2], valor=35)
         self.versaoDados = TagDecimal(nome=u'versaoDados', codigo=u'', raiz=u'//cabecMsg', tamanho=[1, 4], valor=u'2.00')
-    
+
     def get_xml(self):
         xml = XMLNFe.get_xml(self)
         xml += u'<nfeCabecMsg xmlns="http://www.portalfiscal.inf.br/nfe/wsdl/' + self.webservice + u'">'
